@@ -221,7 +221,11 @@ app.use(cookieParser());
 
 app.use(
   cors({
-    origin: ["http://localhost:3000", "https://mediqueue-orcin.vercel.app"],
+    origin: [
+      "http://localhost:3000",
+      "https://assignment-nine-rose-one.vercel.app",
+      "https://assignment-nine-server-gold.vercel.app",
+    ],
     credentials: true,
   }),
 );
@@ -292,19 +296,14 @@ async function run() {
       const result = await tutorsCollection.findOne(query);
       res.send(result);
     });
-
-    // ============= পরিবর্তিত অংশ =============
-    // POST /tutors - টিউটর তৈরি করুন (verifyToken যোগ করা হয়েছে)
     app.post("/tutors", verifyToken, async (req, res) => {
       try {
         const tutor = req.body;
 
-        // ইউজারের ইমেইল যোগ করুন যদি না থাকে
         if (!tutor.email && req.user?.email) {
           tutor.email = req.user.email;
         }
 
-        // ইমেইল আছে কিনা চেক করুন
         if (!tutor.email) {
           return res.status(400).send({ error: "Email is required" });
         }
@@ -319,7 +318,6 @@ async function run() {
       }
     });
 
-    // GET /my-tutors - আমার টিউটরগুলো দেখান (verifyToken যোগ করা হয়েছে)
     app.get("/my-tutors", verifyToken, async (req, res) => {
       try {
         const email = req.user?.email;
@@ -332,7 +330,6 @@ async function run() {
 
         console.log("Fetching my tutors for email:", email);
 
-        // শুধু এই ইউজারের টিউটরগুলো খুঁজুন
         const result = await tutorsCollection.find({ email: email }).toArray();
 
         console.log(`Found ${result.length} tutors for ${email}`);
@@ -343,7 +340,6 @@ async function run() {
       }
     });
 
-    // DELETE /tutors/:id - টিউটর ডিলিট করুন (verifyToken যোগ করা হয়েছে)
     app.delete("/tutors/:id", verifyToken, async (req, res) => {
       try {
         const { id } = req.params;
@@ -357,7 +353,6 @@ async function run() {
       }
     });
 
-    // PATCH /tutors/:id - টিউটর আপডেট করুন (verifyToken যোগ করা হয়েছে)
     app.patch("/tutors/:id", verifyToken, async (req, res) => {
       try {
         const { id } = req.params;
@@ -373,8 +368,6 @@ async function run() {
       }
     });
 
-    // ============= বাকি রাউটগুলোতে verifyToken যোগ করা হয়েছে =============
-    // POST /bookings - বুকিং তৈরি করুন (verifyToken যোগ করা হয়েছে)
     app.post("/bookings", verifyToken, async (req, res) => {
       try {
         const booking = req.body;
@@ -412,7 +405,6 @@ async function run() {
       }
     });
 
-    // GET /bookings - বুকিং দেখান (verifyToken যোগ করা হয়েছে)
     app.get("/bookings", verifyToken, async (req, res) => {
       try {
         const email = req.query.email;
@@ -425,7 +417,6 @@ async function run() {
       }
     });
 
-    // PATCH /bookings/:id - বুকিং আপডেট করুন (verifyToken যোগ করা হয়েছে)
     app.patch("/bookings/:id", verifyToken, async (req, res) => {
       try {
         const { id } = req.params;
@@ -457,7 +448,6 @@ async function run() {
       }
     });
 
-    // JWT রাউটগুলো
     app.post("/jwt", (req, res) => {
       const user = req.body;
       const token = jwt.sign(user, process.env.JWT_SECRET, { expiresIn: "7d" });
